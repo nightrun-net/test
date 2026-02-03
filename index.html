@@ -7,7 +7,39 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+
     body { background: #f8f9fa; color: #333; overflow-x: hidden; }
+
+    /* Login/Register Overlay */
+    .auth-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .auth-box {
+      background: #1a1a1a;
+      padding: 40px;
+      border-radius: 15px;
+      width: 350px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      animation: slideUp 0.5s ease-in;
+    }
+
+    .auth-box h2 { margin-bottom: 20px; }
+    .auth-box input { width: 100%; padding: 12px 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ccc; outline: none; }
+    .auth-box button { background: #ff4c00; color: #fff; padding: 12px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.3s, background 0.3s; width: 100%; }
+    .auth-box button:hover { background: #e04300; transform: scale(1.05); }
+    .auth-box p { margin-top: 10px; font-size: 14px; color: #aaa; }
+    .auth-box p span { color: #ff4c00; cursor: pointer; }
 
     /* Header */
     header { display: flex; justify-content: space-between; align-items: center; padding: 20px 50px; background: #1a1a1a; color: #fff; position: sticky; top: 0; z-index: 1000; }
@@ -16,12 +48,15 @@
     nav a::after { content: ''; position: absolute; left: 0; bottom: -5px; width: 0; height: 2px; background: #ff4c00; transition: width 0.3s; }
     nav a:hover::after { width: 100%; }
 
-    /* Hero */
-    .hero { height: 90vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1603030913518-f5a90bb7f084?auto=format&fit=crop&w=1470&q=80') center/cover no-repeat; color: #fff; text-align: center; animation: fadeIn 2s ease-in; }
-    .hero h2 { font-size: 52px; margin-bottom: 20px; animation: slideUp 1.5s ease-out; }
-    .hero p { font-size: 20px; margin-bottom: 30px; animation: slideUp 2s ease-out; }
-    .btn { background: #ff4c00; color: #fff; padding: 14px 40px; font-weight: bold; border-radius: 50px; transition: transform 0.3s, background 0.3s; display: inline-block; }
-    .btn:hover { background: #e04300; transform: scale(1.05); }
+    /* Hero Section with Video */
+    .hero { position: relative; width: 100%; height: 90vh; overflow: hidden; text-align: center; }
+    .hero video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    .hero .overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; animation: fadeIn 2s ease-in; }
+    .hero .overlay img { width: 120px; margin-bottom: 20px; animation: logoPulse 2.5s ease-in-out infinite; }
+    .hero .overlay h2 { font-size: 48px; margin-bottom: 15px; color: #fff; animation: slideUp 1.5s ease-out; }
+    .hero .overlay p { font-size: 20px; margin-bottom: 30px; color: #fff; animation: slideUp 2s ease-out; }
+    .hero .overlay .btn { background:#ff4c00; padding:15px 40px; border-radius:50px; font-weight:bold; color:#fff; text-transform:uppercase; transition: all 0.3s; animation: fadeIn 2.5s ease-in; }
+    .hero .overlay .btn:hover { background:#e04300; transform: scale(1.05); }
 
     /* Services */
     .services { padding: 80px 50px; text-align: center; background: #fff; }
@@ -51,16 +86,40 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes fadeUp { to { transform: translateY(0); opacity: 1; } }
+    @keyframes logoPulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
     /* Responsive */
     @media(max-width: 768px) {
       header { flex-direction: column; text-align: center; }
       nav { margin-top: 10px; }
-      .hero h2 { font-size: 36px; }
+      .hero .overlay h2 { font-size: 36px; }
+      .hero .overlay img { width: 100px; }
+      .hero .overlay p { font-size: 18px; }
+      .auth-box { width: 90%; padding: 30px; }
     }
   </style>
 </head>
 <body>
+
+  <!-- Login/Register Overlay -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-box" id="loginBox">
+      <h2>Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Password" required>
+      <button id="loginBtn">Login</button>
+      <p>Don't have an account? <span id="showRegister">Register</span></p>
+    </div>
+
+    <div class="auth-box" id="registerBox" style="display:none;">
+      <h2>Register</h2>
+      <input type="text" id="regName" placeholder="Full Name" required>
+      <input type="email" id="regEmail" placeholder="Email" required>
+      <input type="password" id="regPassword" placeholder="Password" required>
+      <button id="registerBtn">Register</button>
+      <p>Already have an account? <span id="showLogin">Login</span></p>
+    </div>
+  </div>
 
   <!-- Header -->
   <header>
@@ -72,11 +131,16 @@
     </nav>
   </header>
 
-  <!-- Hero -->
+  <!-- Hero Section with Video -->
   <section class="hero">
-    <div>
-      <h2>Style That Speaks</h2>
-      <p>Expert haircuts and grooming for the modern man.</p>
+    <video autoplay muted loop playsinline poster="barber-fallback.jpg">
+      <source src="barber-video.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="overlay">
+      <img src="barber-logo.png" alt="Barber Logo">
+      <h2>SharpCuts Barber</h2>
+      <p>Fresh Haircuts, Perfect Style</p>
       <a href="#appointment" class="btn">Book Now</a>
     </div>
   </section>
@@ -137,6 +201,34 @@
       e.preventDefault();
       alert('Your appointment has been successfully booked!');
       form.reset();
+    });
+
+    // Login/Register toggle
+    const showRegister = document.getElementById('showRegister');
+    const showLogin = document.getElementById('showLogin');
+    const loginBox = document.getElementById('loginBox');
+    const registerBox = document.getElementById('registerBox');
+
+    showRegister.addEventListener('click', () => {
+      loginBox.style.display = 'none';
+      registerBox.style.display = 'block';
+    });
+
+    showLogin.addEventListener('click', () => {
+      registerBox.style.display = 'none';
+      loginBox.style.display = 'block';
+    });
+
+    // Simulated login/register actions
+    const authOverlay = document.getElementById('authOverlay');
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      // Add validation if needed
+      authOverlay.style.display = 'none';
+    });
+
+    document.getElementById('registerBtn').addEventListener('click', () => {
+      // Add validation if needed
+      authOverlay.style.display = 'none';
     });
   </script>
 
