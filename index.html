@@ -154,146 +154,129 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 
 <script>
-    window.onload = async () => {
-      const SUPABASE_URL = "https://uohamrzgzcbayanrvupb.supabase.co";
-      const SUPABASE_ANON_KEY = "sb_publishable_FsOhtsLBJUfnqfTyqTG1YA_Vks-1CZq";
-      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-      const loginState = document.getElementById('login-state');
-      const loginPanel = document.getElementById('login-panel');
-      const loginCircle = document.getElementById('login-circle');
-      const loginText = document.getElementById('login-text');
-      const doneIcon = document.getElementById('done-icon');
-      const userName = document.getElementById('user-name');
-      const userMobile = document.getElementById('user-mobile');
-      const saveBtn = document.getElementById('save-btn');
-      const googleBtn = document.getElementById('google-login-btn');
-      const logoutBtn = document.getElementById('logout-btn');
-    
-      // Toggle login panel
-      loginState.addEventListener('click', () => {
-        loginPanel.style.display = loginPanel.style.display === 'flex' ? 'none' : 'flex';
-      });
-    
-      // ----------------------
-      // Handle OAuth redirect and clean URL
-      // ----------------------
-      if (window.location.hash.includes("access_token") || window.location.hash.includes("refresh_token")) {
-        // Supabase automatically restores session after OAuth redirect
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    
-      // ----------------------
-      // Restore session if user already logged in
-      // ----------------------
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session?.user) handleLoggedIn(session.user);
-      else handleLoggedOut();
-    
-      // ----------------------
-      // Google login button
-      // ----------------------
-      googleBtn.addEventListener('click', async () => {
-        const { error } = await supabaseClient.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: window.location.origin + window.location.pathname
-          }
-        });
-        if (error) alert(error.message);
-      });
-    
-      // ----------------------
-      // Logout button
-      // ----------------------
-      logoutBtn.addEventListener('click', async () => {
-        const { error } = await supabaseClient.auth.signOut({ global: true });
-        if (error) return alert(error.message);
-    
-        handleLoggedOut();
-        window.history.replaceState({}, document.title, window.location.pathname);
-        alert("You are logged out! You can now log in with another account.");
-      });
-    
-      // ----------------------
-      // Listen for auth state changes
-      // ----------------------
-      supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (session?.user) handleLoggedIn(session.user);
-        else handleLoggedOut();
-      });
-    
-      // ----------------------
-      // Functions
-      // ----------------------
-      async function handleLoggedIn(user) {
-        loginText.textContent = `Logged in: ${user.email}`;
-        loginCircle.style.background = "green";
-        doneIcon.style.display = "block";
-    
-        // Prefill profile
-        const { data } = await supabaseClient
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-    
-        if (data) {
-          userName.value = data.name || '';
-          userMobile.value = data.mobile || '';
-        }
-    
-        // Buttons: disable login, enable logout
-        googleBtn.disabled = true;
-        googleBtn.style.opacity = "0.5";
-        googleBtn.style.cursor = "not-allowed";
-    
-        logoutBtn.disabled = false;
-        logoutBtn.style.opacity = "1";
-        logoutBtn.style.cursor = "pointer";
-    
-        // Show login panel automatically after OAuth
-        loginPanel.style.display = "flex";
-      }
-    
-      function handleLoggedOut() {
-        loginText.textContent = "Not Logged In";
-        loginCircle.style.background = "red";
-        doneIcon.style.display = "none";
-        userName.value = '';
-        userMobile.value = '';
-        loginPanel.style.display = 'none';
-    
-        // Buttons: enable login, disable logout
-        googleBtn.disabled = false;
-        googleBtn.style.opacity = "1";
-        googleBtn.style.cursor = "pointer";
-    
-        logoutBtn.disabled = true;
-        logoutBtn.style.opacity = "0.5";
-        logoutBtn.style.cursor = "not-allowed";
-      }
-    
-      // ----------------------
-      // Save profile
-      // ----------------------
-      saveBtn.addEventListener('click', async () => {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return alert("You must login first!");
-        if (!userName.value.trim() || !userMobile.value.trim()) return alert("Please enter both Name and Mobile!");
-    
-        const { error } = await supabaseClient.from('profiles').upsert({
-          id: user.id,
-          name: userName.value.trim(),
-          mobile: userMobile.value.trim(),
-          updated_at: new Date().toISOString()
-        });
-        if (error) alert(error.message);
-        else alert("Profile saved!");
-      });
-    };
-    </script>
-    
-    
+window.onload = async () => {
+  const SUPABASE_URL = "https://uohamrzgzcbayanrvupb.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_FsOhtsLBJUfnqfTyqTG1YA_Vks-1CZq";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const loginState = document.getElementById('login-state');
+  const loginPanel = document.getElementById('login-panel');
+  const loginCircle = document.getElementById('login-circle');
+  const loginText = document.getElementById('login-text');
+  const doneIcon = document.getElementById('done-icon');
+  const userName = document.getElementById('user-name');
+  const userMobile = document.getElementById('user-mobile');
+  const saveBtn = document.getElementById('save-btn');
+  const googleBtn = document.getElementById('google-login-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  // Toggle login panel
+  loginState.addEventListener('click', () => {
+    loginPanel.style.display = loginPanel.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  // Clean up OAuth URL if redirected from Google
+  if (window.location.hash.includes("access_token") || window.location.hash.includes("refresh_token")) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  // Restore session if user already logged in
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session?.user) handleLoggedIn(session.user);
+  else handleLoggedOut();
+
+  // Google login
+  googleBtn.addEventListener('click', async () => {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+    if (error) alert(error.message);
+  });
+
+  // Logout completely
+  logoutBtn.addEventListener('click', async () => {
+    const { error } = await supabaseClient.auth.signOut({ global: true });
+    if (error) return alert(error.message);
+
+    handleLoggedOut();
+    window.history.replaceState({}, document.title, window.location.pathname);
+    alert("You are logged out! You can now log in with another account.");
+  });
+
+  // Listen for auth state changes
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session?.user) handleLoggedIn(session.user);
+    else handleLoggedOut();
+  });
+
+  // ----------------------
+  // Functions
+  // ----------------------
+  async function handleLoggedIn(user) {
+    loginText.textContent = `Logged in: ${user.email}`;
+    loginCircle.style.background = "green";
+    doneIcon.style.display = "block";
+
+    // Prefill profile
+    const { data } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (data) {
+      userName.value = data.name || '';
+      userMobile.value = data.mobile || '';
+    }
+
+    // Buttons: disable login, enable logout
+    googleBtn.disabled = true;
+    googleBtn.style.opacity = "0.5";
+    googleBtn.style.cursor = "not-allowed";
+
+    logoutBtn.disabled = false;
+    logoutBtn.style.opacity = "1";
+    logoutBtn.style.cursor = "pointer";
+
+    loginPanel.style.display = "flex";
+  }
+
+  function handleLoggedOut() {
+    loginText.textContent = "Not Logged In";
+    loginCircle.style.background = "red";
+    doneIcon.style.display = "none";
+    userName.value = '';
+    userMobile.value = '';
+    loginPanel.style.display = 'none';
+
+    // Buttons: enable login, disable logout
+    googleBtn.disabled = false;
+    googleBtn.style.opacity = "1";
+    googleBtn.style.cursor = "pointer";
+
+    logoutBtn.disabled = true;
+    logoutBtn.style.opacity = "0.5";
+    logoutBtn.style.cursor = "not-allowed";
+  }
+
+  // Save profile
+  saveBtn.addEventListener('click', async () => {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return alert("You must login first!");
+    if (!userName.value.trim() || !userMobile.value.trim()) return alert("Please enter both Name and Mobile!");
+
+    const { error } = await supabaseClient.from('profiles').upsert({
+      id: user.id,
+      name: userName.value.trim(),
+      mobile: userMobile.value.trim(),
+      updated_at: new Date().toISOString()
+    });
+    if (error) alert(error.message);
+    else alert("Profile saved!");
+  });
+};
+</script>
+
 </body>
 </html>
