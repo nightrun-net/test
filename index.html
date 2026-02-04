@@ -86,6 +86,7 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
       <input type="text" id="user-name" placeholder="Name">
       <input type="text" id="user-mobile" placeholder="Mobile Number">
       <button id="save-btn">Save</button>
+      <button id="logout-btn" style="background:#555;">Logout</button>
     </div>
   </div>
 </header>
@@ -150,16 +151,14 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
 <!-- Supabase SDK (MUST be first) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 <script>
 window.onload = async () => {
   const SUPABASE_URL = "https://uohamrzgzcbayanrvupb.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_FsOhtsLBJUfnqfTyqTG1YA_Vks-1CZq";
 
-  // ✅ Explicit global access (FIX)
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   console.log("Supabase initialized:", supabaseClient);
 
@@ -173,42 +172,65 @@ window.onload = async () => {
   const saveBtn = document.getElementById('save-btn');
   const googleBtn = document.getElementById('google-login-btn');
 
+  // Add logout button dynamically
+  const logoutBtn = document.createElement('button');
+  logoutBtn.textContent = "Logout";
+  logoutBtn.style.padding = "8px 15px";
+  logoutBtn.style.borderRadius = "50px";
+  logoutBtn.style.border = "none";
+  logoutBtn.style.background = "#ff4c00";
+  logoutBtn.style.color = "#fff";
+  logoutBtn.style.cursor = "pointer";
+  logoutBtn.style.marginTop = "10px";
+  loginPanel.appendChild(logoutBtn);
+
+  // Toggle login panel
   loginState.addEventListener('click', () => {
-    loginPanel.style.display =
-      loginPanel.style.display === 'flex' ? 'none' : 'flex';
+    loginPanel.style.display = loginPanel.style.display === 'flex' ? 'none' : 'flex';
   });
 
-  // Google Login
-  googleBtn.addEventListener('click', async () => {
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: 'https://nightrun-net.github.io/test//confirmation.html' // <-- redirect after login
-    }
-  });
+  // Complete OAuth redirect if returning from Google login
+  const { data: { session }, error: redirectError } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
+  if (redirectError) console.error("OAuth redirect error:", redirectError.message);
 
-  if (error) alert(error.message);
-});
-
-
-  // Restore session on refresh
-  const { data: { session } } = await supabaseClient.auth.getSession();
   if (session?.user) handleLoggedIn(session.user);
 
-  // Auth state changes
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
-      handleLoggedIn(session.user);
-    } else {
-      handleLoggedOut();
-    }
+  // Google login
+  googleBtn.addEventListener('click', async () => {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.href
+      }
+    });
+    if (error) alert(error.message);
   });
 
+  // Logout
+  logoutBtn.addEventListener('click', async () => {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) return alert(error.message);
+    handleLoggedOut();
+    alert("You are logged out!");
+  });
+
+  // Listen for auth state changes
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session?.user) handleLoggedIn(session.user);
+    else handleLoggedOut();
+  });
+
+  // Restore session on page load
+  const { data: { session: savedSession } } = await supabaseClient.auth.getSession();
+  if (savedSession?.user) handleLoggedIn(savedSession.user);
+
+  // Functions
   async function handleLoggedIn(user) {
-    loginText.textContent = "Logged In";
+    loginText.textContent = `Logged in: ${user.email}`;
     loginCircle.style.background = "green";
     doneIcon.style.display = "block";
 
+    // Prefill profile
     const { data } = await supabaseClient
       .from('profiles')
       .select('*')
@@ -231,13 +253,9 @@ window.onload = async () => {
 
   // Save profile
   saveBtn.addEventListener('click', async () => {
-    const { data } = await supabaseClient.auth.getUser();
-    const user = data?.user;
-
+    const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return alert("You must login first!");
-    if (!userName.value.trim() || !userMobile.value.trim()) {
-      return alert("Please enter both Name and Mobile!");
-    }
+    if (!userName.value.trim() || !userMobile.value.trim()) return alert("Please enter both Name and Mobile!");
 
     const { error } = await supabaseClient.from('profiles').upsert({
       id: user.id,
@@ -245,12 +263,13 @@ window.onload = async () => {
       mobile: userMobile.value.trim(),
       updated_at: new Date().toISOString()
     });
-
     if (error) alert(error.message);
     else alert("Profile saved!");
   });
 };
 </script>
+
+
 
 </body>
 </html>
