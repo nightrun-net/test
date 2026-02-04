@@ -1,260 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>SharpCuts Barber</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SharpCuts Barber</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
-    body { background: #f8f9fa; color: #333; overflow-x: hidden; }
+<style>
+/* Your previous styles remain the same */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Montserrat',sans-serif;}
+body{background:#f8f9fa;color:#333;overflow-x:hidden;position:relative;}
+header {
+    display:flex;justify-content:space-between;align-items:center;padding:20px 50px;
+    position:fixed;top:0;width:100%;z-index:1000;
+    background: rgba(0,0,0,0.6);backdrop-filter: blur(8px);color:#fff;box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+header h1{font-size:28px;letter-spacing:2px;}
+nav a{margin-left:25px;font-weight:600;color:#fff;position:relative;transition:color 0.3s;}
+nav a::after{content:'';position:absolute;left:0;bottom:-5px;width:0;height:2px;background:#ff4c00;transition:width 0.3s;}
+nav a:hover::after{width:100%;}
 
-    /* Header - Black Glass */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 50px;
-      position: fixed; /* sticky-like effect */
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-      background: rgba(0, 0, 0, 0.6); /* black glass */
-      backdrop-filter: blur(8px); /* glass effect */
-      color: #fff;
-    }
-    header h1 { font-size: 28px; letter-spacing: 2px; }
-    nav a {
-      margin-left: 25px;
-      font-weight: 600;
-      color: #fff;
-      position: relative;
-      transition: color 0.3s;
-    }
-    nav a::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -5px;
-      width: 0;
-      height: 2px;
-      background: #ff4c00;
-      transition: width 0.3s;
-    }
-    nav a:hover::after { width: 100%; }
-
-    /* Hero Section with Video */
-    .hero {
-      position: relative;
-      width: 100%;
-      height: 90vh;
-      overflow: hidden;
-      text-align: center;
-      margin-top: 80px; /* header height spacing */
-    }
-    .hero video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 1;
-    }
-    .hero .overlay {
-      position: absolute;
-      top:0; left:0;
-      width:100%; height:100%;
-      background: rgba(0,0,0,0.5);
-      z-index:2;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      animation: fadeIn 2s ease-in;
-    }
-    .hero .overlay img {
-      width: 120px;
-      margin-bottom: 20px;
-      animation: logoPulse 2.5s ease-in-out infinite;
-    }
-    .hero .overlay h2 {
-      font-size: 48px;
-      margin-bottom: 15px;
-      color: #fff;
-      animation: slideUp 1.5s ease-out;
-    }
-    .hero .overlay p {
-      font-size: 20px;
-      margin-bottom: 30px;
-      color: #fff;
-      animation: slideUp 2s ease-out;
-    }
-    .hero .overlay .btn {
-      background:#ff4c00;
-      padding:15px 40px;
-      border-radius:50px;
-      font-weight:bold;
-      color:#fff;
-      text-transform:uppercase;
-      transition: all 0.3s;
-      animation: fadeIn 2.5s ease-in;
-    }
-    .hero .overlay .btn:hover { background:#e04300; transform: scale(1.05); }
-
-    /* Services */
-    .services { padding: 80px 50px; text-align: center; background: #fff; }
-    .services h2 { margin-bottom: 60px; font-size: 42px; }
-    .service-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; }
-    .service-card {
-      background: #1a1a1a;
-      color: #fff;
-      padding: 30px 20px;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      transform: translateY(50px);
-      opacity: 0;
-      animation: fadeUp 1s forwards;
-    }
-    .service-card:nth-child(1) { animation-delay: 0.2s; }
-    .service-card:nth-child(2) { animation-delay: 0.4s; }
-    .service-card:nth-child(3) { animation-delay: 0.6s; }
-    .service-card:nth-child(4) { animation-delay: 0.8s; }
-    .service-card h3 { margin-bottom: 15px; font-size: 24px; color: #ff4c00; }
-    .service-card p { color: #ccc; line-height: 1.5; }
-
-    /* Appointment */
-    .appointment { padding: 80px 50px; text-align: center; background: #f1f1f1; }
-    .appointment h2 { font-size: 42px; margin-bottom: 40px; }
-    .appointment form { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-    .appointment input, .appointment select, .appointment textarea {
-      padding: 12px 15px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      transition: transform 0.3s, border 0.3s;
-    }
-    .appointment input:focus, .appointment select:focus, .appointment textarea:focus {
-      border-color: #ff4c00;
-      transform: scale(1.02);
-      outline: none;
-    }
-    .appointment button {
-      background: #ff4c00;
-      color: #fff;
-      padding: 14px;
-      font-weight: bold;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: transform 0.3s, background 0.3s;
-    }
-    .appointment button:hover { background: #e04300; transform: scale(1.05); }
-
-    /* Footer */
-    footer { padding: 40px 50px; background: #1a1a1a; color: #aaa; text-align: center; font-size: 14px; }
-
-    /* Animations */
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes fadeUp { to { transform: translateY(0); opacity: 1; } }
-    @keyframes logoPulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
-    /* Responsive */
-    @media(max-width: 768px) {
-      header { flex-direction: column; text-align: center; }
-      nav { margin-top: 10px; }
-      .hero .overlay h2 { font-size: 36px; }
-      .hero .overlay img { width: 100px; }
-      .hero .overlay p { font-size: 18px; }
-    }
-  </style>
+.login-state { display:flex;align-items:center;cursor:pointer;position:relative; }
+.login-circle { width:14px;height:14px;border-radius:50%;margin-right:8px;background:red;transition:background 0.3s; }
+.login-text{font-weight:bold;}
+.login-panel { position:absolute;top:40px;right:0;width:220px;background:rgba(0,0,0,0.9);color:#fff;border-radius:12px;padding:15px; display:none;flex-direction:column;gap:10px;z-index:1001;box-shadow:0 5px 15px rgba(0,0,0,0.4); }
+.login-panel input { width:100%;padding:8px 10px;border-radius:6px;border:none; }
+.login-panel button { width:100%;padding:10px;border:none;border-radius:50px;background:#ff4c00;color:#fff;font-weight:bold;cursor:pointer;transition:0.3s;}
+.login-panel button:hover{background:#e04300;}
+.done-icon{color:#4CAF50;font-weight:bold;display:none;margin-bottom:5px;text-align:center;}
+.hero { position:relative;width:100%;height:90vh;overflow:hidden;text-align:center;margin-top:80px; }
+.hero video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+.hero .overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;animation:fadeIn 2s ease-in;}
+.hero .overlay img{width:120px;margin-bottom:20px;animation:logoPulse 2.5s ease-in-out infinite;}
+.hero .overlay h2{font-size:48px;margin-bottom:15px;color:#fff;animation:slideUp 1.5s ease-out;}
+.hero .overlay p{font-size:20px;margin-bottom:30px;color:#fff;animation:slideUp 2s ease-out;}
+.hero .overlay .btn{background:#ff4c00;padding:15px 40px;border-radius:50px;font-weight:bold;color:#fff;text-transform:uppercase;transition: all 0.3s;animation:fadeIn 2.5s ease-in;}
+.hero .overlay .btn:hover{background:#e04300; transform: scale(1.05);}
+.services{padding:80px 50px;text-align:center;background:#fff;}
+.services h2{margin-bottom:60px;font-size:42px;}
+.service-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px;}
+.service-card{background:#1a1a1a;color:#fff;padding:30px 20px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.2);transform:translateY(50px);opacity:0;animation:fadeUp 1s forwards;}
+.service-card:nth-child(1){animation-delay:0.2s;}
+.service-card:nth-child(2){animation-delay:0.4s;}
+.service-card:nth-child(3){animation-delay:0.6s;}
+.service-card:nth-child(4){animation-delay:0.8s;}
+.service-card h3{margin-bottom:15px;font-size:24px;color:#ff4c00;}
+.service-card p{color:#ccc;line-height:1.5;}
+.appointment{padding:80px 50px;text-align:center;background:#f1f1f1;}
+.appointment h2{font-size:42px;margin-bottom:40px;}
+.appointment form{max-width:500px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+.appointment input,.appointment select,.appointment textarea{padding:12px 15px;border-radius:10px;border:1px solid #ccc;transition:transform 0.3s,border 0.3s;}
+.appointment input:focus,.appointment select:focus,.appointment textarea:focus{border-color:#ff4c00;transform:scale(1.02);outline:none;}
+.appointment button{background:#ff4c00;color:#fff;padding:14px;font-weight:bold;border:none;border-radius:50px;cursor:pointer;transition:transform 0.3s,background 0.3s;}
+.appointment button:hover{background:#e04300;transform:scale(1.05);}
+footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-size:14px;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes fadeUp{to{transform:translateY(0);opacity:1;}}
+@keyframes logoPulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
+@media(max-width:768px){
+    header{flex-direction:column;text-align:center;background:#000;backdrop-filter:none;}
+    nav{margin-top:10px;}
+    .hero .overlay h2{font-size:36px;}
+    .hero .overlay img{width:100px;}
+    .hero .overlay p{font-size:18px;}
+}
+</style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <h1>Barber Name</h1>
-    <nav>
-      <a href="#services">Services</a>
-      <a href="#appointment">Book</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
+<header>
+  <h1>SharpCuts</h1>
+  <nav>
+    <a href="#services">Services</a>
+    <a href="#appointment">Book</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <div class="login-state" id="login-state">
+    <div class="login-circle" id="login-circle"></div>
+    <div class="login-text" id="login-text">Not Logged In</div>
 
-  <!-- Hero Section with Video -->
-  <section class="hero">
-    <video autoplay muted loop playsinline poster="barber-fallback.jpg">
-      <source src="barber-video.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <div class="overlay">
-      <img src="barber-logo.png" alt="Barber Logo">
-      <h2>Barber Name</h2>
-      <p>Fresh Haircuts, Perfect Style</p>
-      <a href="#appointment" class="btn">Book Now</a>
+    <div class="login-panel" id="login-panel">
+      <button id="google-login-btn">Login with Google</button>
+      <div class="done-icon" id="done-icon">✔ Done</div>
+      <input type="text" id="user-name" placeholder="Name">
+      <input type="text" id="user-mobile" placeholder="Mobile Number">
+      <button id="save-btn">Save</button>
     </div>
-  </section>
+  </div>
+</header>
 
-  <!-- Services -->
-  <section class="services" id="services">
-    <h2>Our Services</h2>
-    <div class="service-cards">
-      <div class="service-card">
-        <h3>Haircut</h3>
-        <p>Precision cuts to match your style, done by professional barbers.</p>
-      </div>
-      <div class="service-card">
-        <h3>Beard Styling</h3>
-        <p>Shape and maintain your beard for a sharp and clean look.</p>
-      </div>
-      <div class="service-card">
-        <h3>Shaving</h3>
-        <p>Hot towel shaves and smooth finishes for a relaxing experience.</p>
-      </div>
-      <div class="service-card">
-        <h3>Hair Coloring</h3>
-        <p>Refresh or transform your look with our premium coloring services.</p>
-      </div>
+<section class="hero">
+  <video autoplay muted loop playsinline poster="barber-fallback.jpg">
+    <source src="barber-video.mp4" type="video/mp4">
+  </video>
+  <div class="overlay">
+    <img src="barber-logo.png" alt="Barber Logo">
+    <h2>SharpCuts Barber</h2>
+    <p>Fresh Haircuts, Perfect Style</p>
+    <a href="#appointment" class="btn">Book Now</a>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <h2>Our Services</h2>
+  <div class="service-cards">
+    <div class="service-card">
+      <h3>Haircut</h3>
+      <p>Precision cuts to match your style, done by professional barbers.</p>
     </div>
-  </section>
+    <div class="service-card">
+      <h3>Beard Styling</h3>
+      <p>Shape and maintain your beard for a sharp and clean look.</p>
+    </div>
+    <div class="service-card">
+      <h3>Shaving</h3>
+      <p>Hot towel shaves and smooth finishes for a relaxing experience.</p>
+    </div>
+    <div class="service-card">
+      <h3>Hair Coloring</h3>
+      <p>Refresh or transform your look with our premium coloring services.</p>
+    </div>
+  </div>
+</section>
 
-  <!-- Appointment -->
-  <section class="appointment" id="appointment">
-    <h2>Book an Appointment</h2>
-    <form id="appointmentForm">
-      <input type="text" placeholder="Full Name" required>
-      <input type="email" placeholder="Email" required>
-      <input type="tel" placeholder="Phone" required>
-      <select required>
-        <option value="" disabled selected>Select Service</option>
-        <option value="haircut">Haircut</option>
-        <option value="beard">Beard Styling</option>
-        <option value="shave">Shaving</option>
-        <option value="coloring">Hair Coloring</option>
-      </select>
-      <input type="date" required>
-      <input type="time" required>
-      <textarea placeholder="Additional Notes"></textarea>
-      <button type="submit">Book Appointment</button>
-    </form>
-  </section>
+<section class="appointment" id="appointment">
+  <h2>Book an Appointment</h2>
+  <form id="appointmentForm">
+    <input type="text" placeholder="Full Name" required>
+    <input type="email" placeholder="Email" required>
+    <input type="tel" placeholder="Phone" required>
+    <select required>
+      <option value="" disabled selected>Select Service</option>
+      <option value="haircut">Haircut</option>
+      <option value="beard">Beard Styling</option>
+      <option value="shave">Shaving</option>
+      <option value="coloring">Hair Coloring</option>
+    </select>
+    <input type="date" required>
+    <input type="time" required>
+    <textarea placeholder="Additional Notes"></textarea>
+    <button type="submit">Book Appointment</button>
+  </form>
+</section>
 
-  <!-- Footer -->
-  <footer id="contact">
-    &copy; 2026 Barber Name. All rights reserved.
-  </footer>
+<footer id="contact">
+  &copy; 2026 SharpCuts Barber. All rights reserved.
+</footer>
+<!-- Supabase SDK (MUST be first) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script>
-    // Appointment form alert
-    const form = document.getElementById('appointmentForm');
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      alert('Your appointment has been successfully booked!');
-      form.reset();
+<script>
+window.onload = async () => {
+  const SUPABASE_URL = "https://uohamrzgzcbayanrvupb.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_FsOhtsLBJUfnqfTyqTG1YA_Vks-1CZq";
+
+  // ✅ Explicit global access (FIX)
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+  console.log("Supabase initialized:", supabaseClient);
+
+  const loginState = document.getElementById('login-state');
+  const loginPanel = document.getElementById('login-panel');
+  const loginCircle = document.getElementById('login-circle');
+  const loginText = document.getElementById('login-text');
+  const doneIcon = document.getElementById('done-icon');
+  const userName = document.getElementById('user-name');
+  const userMobile = document.getElementById('user-mobile');
+  const saveBtn = document.getElementById('save-btn');
+  const googleBtn = document.getElementById('google-login-btn');
+
+  loginState.addEventListener('click', () => {
+    loginPanel.style.display =
+      loginPanel.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  // Google Login
+  googleBtn.addEventListener('click', async () => {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
     });
-  </script>
+
+    if (error) alert(error.message);
+  });
+
+  // Restore session on refresh
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session?.user) handleLoggedIn(session.user);
+
+  // Auth state changes
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session?.user) {
+      handleLoggedIn(session.user);
+    } else {
+      handleLoggedOut();
+    }
+  });
+
+  async function handleLoggedIn(user) {
+    loginText.textContent = "Logged In";
+    loginCircle.style.background = "green";
+    doneIcon.style.display = "block";
+
+    const { data } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (data) {
+      userName.value = data.name || '';
+      userMobile.value = data.mobile || '';
+    }
+  }
+
+  function handleLoggedOut() {
+    loginText.textContent = "Not Logged In";
+    loginCircle.style.background = "red";
+    doneIcon.style.display = "none";
+    userName.value = '';
+    userMobile.value = '';
+  }
+
+  // Save profile
+  saveBtn.addEventListener('click', async () => {
+    const { data } = await supabaseClient.auth.getUser();
+    const user = data?.user;
+
+    if (!user) return alert("You must login first!");
+    if (!userName.value.trim() || !userMobile.value.trim()) {
+      return alert("Please enter both Name and Mobile!");
+    }
+
+    const { error } = await supabaseClient.from('profiles').upsert({
+      id: user.id,
+      name: userName.value.trim(),
+      mobile: userMobile.value.trim(),
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) alert(error.message);
+    else alert("Profile saved!");
+  });
+};
+</script>
 
 </body>
 </html>
