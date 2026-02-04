@@ -70,7 +70,7 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
 <body>
 
 <header>
-  <h1>SharpCuts</h1>
+  <h1>Waysi Barber</h1>
   <nav>
     <a href="#services">Services</a>
     <a href="#appointment">Book</a>
@@ -96,7 +96,7 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
   </video>
   <div class="overlay">
     <img src="barber-logo.png" alt="Barber Logo">
-    <h2>SharpCuts Barber</h2>
+    <h2>waysi</h2>
     <p>Fresh Haircuts, Perfect Style</p>
     <a href="#appointment" class="btn">Book Now</a>
   </div>
@@ -180,15 +180,16 @@ window.onload = async () => {
 
   // Google Login
   googleBtn.addEventListener('click', async () => {
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin
-      }
-    });
-
-    if (error) alert(error.message);
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'https://nightrun-net.github.io/test//confirmation.html' // <-- redirect after login
+    }
   });
+
+  if (error) alert(error.message);
+});
+
 
   // Restore session on refresh
   const { data: { session } } = await supabaseClient.auth.getSession();
