@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-/* Your previous styles remain the same */ 
+/* Your previous styles remain the same */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Montserrat',sans-serif;}
 body{background:#f8f9fa;color:#333;overflow-x:hidden;position:relative;}
 header {
@@ -155,122 +155,133 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
 
 
 <script>
-window.onload = async () => {
-  const SUPABASE_URL = "https://uohamrzgzcbayanrvupb.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_FsOhtsLBJUfnqfTyqTG1YA_Vks-1CZq";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  console.log("Supabase initialized:", supabaseClient);
-
-  const loginState = document.getElementById('login-state');
-  const loginPanel = document.getElementById('login-panel');
-  const loginCircle = document.getElementById('login-circle');
-  const loginText = document.getElementById('login-text');
-  const doneIcon = document.getElementById('done-icon');
-  const userName = document.getElementById('user-name');
-  const userMobile = document.getElementById('user-mobile');
-  const saveBtn = document.getElementById('save-btn');
-  const googleBtn = document.getElementById('google-login-btn');
-  const logoutBtn = document.getElementById('logout-btn');
-
-  // Toggle login panel
-  loginState.addEventListener('click', () => {
-    loginPanel.style.display = loginPanel.style.display === 'flex' ? 'none' : 'flex';
-  });
-
-  // Handle OAuth redirect from Google
-  if (window.location.href.includes('access_token') || window.location.href.includes('refresh_token')) {
-    try {
-      const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
-      if (error) console.error("OAuth redirect error:", error.message);
-      if (data?.session?.user) handleLoggedIn(data.session.user);
-    } catch (err) {
-      console.error("OAuth session error:", err);
-    } finally {
-      // Clear the access_token and other URL params after login
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }
-
-  // Restore session if already logged in
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session?.user) handleLoggedIn(session.user);
-
-  // Google login
-  googleBtn.addEventListener('click', async () => {
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.href }
-    });
-    if (error) alert(error.message);
-  });
-
-  // Logout completely
-  logoutBtn.addEventListener('click', async () => {
-    // Sign out user globally
-    const { error } = await supabaseClient.auth.signOut({ global: true });
-    if (error) return alert(error.message);
-
-    // Reset UI
-    handleLoggedOut();
-
-    // Remove any leftover OAuth tokens from URL
-    window.history.replaceState({}, document.title, window.location.pathname);
-
-    alert("You are logged out! You can now log in with another account.");
-  });
-
-  // Listen for auth state changes
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (session?.user) handleLoggedIn(session.user);
-    else handleLoggedOut();
-  });
-
-  // Functions
-  async function handleLoggedIn(user) {
-    loginText.textContent = `Logged in: ${user.email}`;
-    loginCircle.style.background = "green";
-    doneIcon.style.display = "block";
-
-    // Prefill profile info
-    const { data } = await supabaseClient
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (data) {
-      userName.value = data.name || '';
-      userMobile.value = data.mobile || '';
-    }
-  }
-
-  function handleLoggedOut() {
-    loginText.textContent = "Not Logged In";
-    loginCircle.style.background = "red";
-    doneIcon.style.display = "none";
-    userName.value = '';
-    userMobile.value = '';
-    loginPanel.style.display = 'none';
-  }
-
-  // Save profile
-  saveBtn.addEventListener('click', async () => {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return alert("You must login first!");
-    if (!userName.value.trim() || !userMobile.value.trim()) return alert("Please enter both Name and Mobile!");
-
-    const { error } = await supabaseClient.from('profiles').upsert({
-      id: user.id,
-      name: userName.value.trim(),
-      mobile: userMobile.value.trim(),
-      updated_at: new Date().toISOString()
-    });
-    if (error) alert(error.message);
-    else alert("Profile saved!");
-  });
-};
-</script>
-
+    window.onload = async () => {
+      const SUPABASE_URL = "https://uohamrzgzcbayanrvupb.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable_FsOhtsLBJUfnqfTyqTG1YA_Vks-1CZq";
+      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+      const loginState = document.getElementById('login-state');
+      const loginPanel = document.getElementById('login-panel');
+      const loginCircle = document.getElementById('login-circle');
+      const loginText = document.getElementById('login-text');
+      const doneIcon = document.getElementById('done-icon');
+      const userName = document.getElementById('user-name');
+      const userMobile = document.getElementById('user-mobile');
+      const saveBtn = document.getElementById('save-btn');
+      const googleBtn = document.getElementById('google-login-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+    
+      // Toggle login panel visibility
+      loginState.addEventListener('click', () => {
+        loginPanel.style.display = loginPanel.style.display === 'flex' ? 'none' : 'flex';
+      });
+    
+      // Handle OAuth redirect from Google
+      if (window.location.href.includes('access_token') || window.location.href.includes('refresh_token')) {
+        try {
+          const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
+          if (error) console.error("OAuth redirect error:", error.message);
+          if (data?.session?.user) handleLoggedIn(data.session.user);
+        } catch (err) {
+          console.error("OAuth session error:", err);
+        } finally {
+          // Clean URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    
+      // Restore session if already logged in
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session?.user) handleLoggedIn(session.user);
+      else handleLoggedOut(); // Ensure buttons are correctly toggled
+    
+      // Google login
+      googleBtn.addEventListener('click', async () => {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.href }
+        });
+        if (error) alert(error.message);
+      });
+    
+      // Logout
+      logoutBtn.addEventListener('click', async () => {
+        const { error } = await supabaseClient.auth.signOut({ global: true });
+        if (error) return alert(error.message);
+    
+        handleLoggedOut();
+        window.history.replaceState({}, document.title, window.location.pathname);
+        alert("You are logged out! You can now log in with another account.");
+      });
+    
+      // Listen for auth state changes
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (session?.user) handleLoggedIn(session.user);
+        else handleLoggedOut();
+      });
+    
+      // FUNCTIONS
+      async function handleLoggedIn(user) {
+        loginText.textContent = `Logged in: ${user.email}`;
+        loginCircle.style.background = "green";
+        doneIcon.style.display = "block";
+    
+        // Prefill profile
+        const { data } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        if (data) {
+          userName.value = data.name || '';
+          userMobile.value = data.mobile || '';
+        }
+    
+        // Toggle buttons: disable login, enable logout
+        googleBtn.disabled = true;
+        googleBtn.style.opacity = "0.5";
+        googleBtn.style.cursor = "not-allowed";
+    
+        logoutBtn.disabled = false;
+        logoutBtn.style.opacity = "1";
+        logoutBtn.style.cursor = "pointer";
+      }
+    
+      function handleLoggedOut() {
+        loginText.textContent = "Not Logged In";
+        loginCircle.style.background = "red";
+        doneIcon.style.display = "none";
+        userName.value = '';
+        userMobile.value = '';
+        loginPanel.style.display = 'none';
+    
+        // Toggle buttons: enable login, disable logout
+        googleBtn.disabled = false;
+        googleBtn.style.opacity = "1";
+        googleBtn.style.cursor = "pointer";
+    
+        logoutBtn.disabled = true;
+        logoutBtn.style.opacity = "0.5";
+        logoutBtn.style.cursor = "not-allowed";
+      }
+    
+      // Save profile
+      saveBtn.addEventListener('click', async () => {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return alert("You must login first!");
+        if (!userName.value.trim() || !userMobile.value.trim()) return alert("Please enter both Name and Mobile!");
+    
+        const { error } = await supabaseClient.from('profiles').upsert({
+          id: user.id,
+          name: userName.value.trim(),
+          mobile: userMobile.value.trim(),
+          updated_at: new Date().toISOString()
+        });
+        if (error) alert(error.message);
+        else alert("Profile saved!");
+      });
+    };
+    </script>
+    
 </body>
 </html>
