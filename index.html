@@ -176,9 +176,10 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
       });
     
       // ----------------------
-      // Remove OAuth fragments from URL
+      // Handle OAuth redirect and clean URL
       // ----------------------
       if (window.location.hash.includes("access_token") || window.location.hash.includes("refresh_token")) {
+        // Supabase automatically restores session after OAuth redirect
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     
@@ -196,7 +197,7 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: window.location.origin + window.location.pathname // clean redirect
+            redirectTo: window.location.origin + window.location.pathname
           }
         });
         if (error) alert(error.message);
@@ -242,7 +243,7 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
           userMobile.value = data.mobile || '';
         }
     
-        // Toggle buttons
+        // Buttons: disable login, enable logout
         googleBtn.disabled = true;
         googleBtn.style.opacity = "0.5";
         googleBtn.style.cursor = "not-allowed";
@@ -250,6 +251,9 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
         logoutBtn.disabled = false;
         logoutBtn.style.opacity = "1";
         logoutBtn.style.cursor = "pointer";
+    
+        // Show login panel automatically after OAuth
+        loginPanel.style.display = "flex";
       }
     
       function handleLoggedOut() {
@@ -260,7 +264,7 @@ footer{padding:40px 50px;background:#1a1a1a;color:#aaa;text-align:center;font-si
         userMobile.value = '';
         loginPanel.style.display = 'none';
     
-        // Toggle buttons
+        // Buttons: enable login, disable logout
         googleBtn.disabled = false;
         googleBtn.style.opacity = "1";
         googleBtn.style.cursor = "pointer";
