@@ -180,14 +180,19 @@ window.onload = async () => {
 
   // Handle OAuth redirect from Google
   if (window.location.href.includes('access_token') || window.location.href.includes('refresh_token')) {
-    const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
-    if (error) console.error("OAuth redirect error:", error.message);
-    if (data?.session?.user) handleLoggedIn(data.session.user);
-    // Remove OAuth params from URL
-    window.history.replaceState({}, document.title, window.location.pathname);
+    try {
+      const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
+      if (error) console.error("OAuth redirect error:", error.message);
+      if (data?.session?.user) handleLoggedIn(data.session.user);
+    } catch (err) {
+      console.error("OAuth session error:", err);
+    } finally {
+      // Clear the access_token and other URL params after login
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }
 
-  // Restore session if user already logged in
+  // Restore session if already logged in
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session?.user) handleLoggedIn(session.user);
 
@@ -202,15 +207,16 @@ window.onload = async () => {
 
   // Logout completely
   logoutBtn.addEventListener('click', async () => {
-    // Sign out user
-    const { error } = await supabaseClient.auth.signOut();
+    // Sign out user globally
+    const { error } = await supabaseClient.auth.signOut({ global: true });
     if (error) return alert(error.message);
 
-    // Clear local session completely
-    await supabaseClient.auth.signOut({ global: true });
-
-    // Reset UI and inputs
+    // Reset UI
     handleLoggedOut();
+
+    // Remove any leftover OAuth tokens from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+
     alert("You are logged out! You can now log in with another account.");
   });
 
@@ -226,6 +232,7 @@ window.onload = async () => {
     loginCircle.style.background = "green";
     doneIcon.style.display = "block";
 
+    // Prefill profile info
     const { data } = await supabaseClient
       .from('profiles')
       .select('*')
@@ -264,5 +271,6 @@ window.onload = async () => {
   });
 };
 </script>
+
 </body>
 </html>
