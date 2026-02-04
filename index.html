@@ -178,7 +178,7 @@ window.onload = async () => {
     loginPanel.style.display = loginPanel.style.display === 'flex' ? 'none' : 'flex';
   });
 
-  // Handle redirect from Google OAuth
+  // Handle OAuth redirect from Google
   if (window.location.href.includes('access_token') || window.location.href.includes('refresh_token')) {
     const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
     if (error) console.error("OAuth redirect error:", error.message);
@@ -200,15 +200,21 @@ window.onload = async () => {
     if (error) alert(error.message);
   });
 
-  // Logout
+  // Logout completely
   logoutBtn.addEventListener('click', async () => {
+    // Sign out user
     const { error } = await supabaseClient.auth.signOut();
     if (error) return alert(error.message);
+
+    // Clear local session completely
+    await supabaseClient.auth.signOut({ global: true });
+
+    // Reset UI and inputs
     handleLoggedOut();
-    alert("You are logged out!");
+    alert("You are logged out! You can now log in with another account.");
   });
 
-  // Auth state changes
+  // Listen for auth state changes
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (session?.user) handleLoggedIn(session.user);
     else handleLoggedOut();
@@ -238,6 +244,7 @@ window.onload = async () => {
     doneIcon.style.display = "none";
     userName.value = '';
     userMobile.value = '';
+    loginPanel.style.display = 'none';
   }
 
   // Save profile
@@ -257,6 +264,5 @@ window.onload = async () => {
   });
 };
 </script>
-
 </body>
 </html>
